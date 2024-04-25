@@ -1,0 +1,9 @@
+def calculate_federal_tax(tax_inc, fed_rate):
+    fed_tax = tax_inc * fed_rate
+    return fed_tax
+
+#tax bracket dictionary for pass-through businesses
+tax_brackets = {(0,10275.00): 0.1, (10275.01, 41774.99): 0.12,
+                (41775, 89074.99):0.22, (89075,170049.99):0.24,
+                (170050, 215949.99): 0.32, (215950, 539899.99): 0.35
+                (539900, float('inf')): 0.37}
