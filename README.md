@@ -20,4 +20,4 @@ The fourth section of this project is the summary at the very end prints:
     - Social Security
     - Medicare
     - SUTA
-    - And finally the summed total
+    - And finally the summed total 
