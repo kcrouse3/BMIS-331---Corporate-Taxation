@@ -1,9 +1,426 @@
+# Function to calculate federal tax
 def calculate_federal_tax(tax_inc, fed_rate):
     fed_tax = tax_inc * fed_rate
     return fed_tax
 
-#tax bracket dictionary for pass-through businesses
-tax_brackets = {(0,10275.00): 0.1, (10275.01, 41774.99): 0.12,
-                (41775, 89074.99):0.22, (89075,170049.99):0.24,
-                (170050, 215949.99): 0.32, (215950, 539899.99): 0.35
-                (539900, float('inf')): 0.37}
+# Dictionary to store tax rates for different income ranges
+tax_brackets = {
+    (0, 10275.00): 0.1,
+    (10275.01, 41774.99): 0.12,
+    (41775, 89074.99): 0.22,
+    (89075, 170049.99): 0.24,
+    (170050, 215949.99): 0.32,
+    (215950, 539899.99): 0.35,
+    (539900, float('inf')): 0.37
+}
+
+# Prompt for business classification
+business_classification = input("How would you classify your business? (Sole proprietorship, Partnership, LLC, S-Corporation, or C-Corporation): ").lower()
+
+# Check business classification and calculate tax accordingly
+print(f"You have selected a {business_classification}.")
+tax_inc = float(input("\nPlease enter your company's taxable net income: $ "))
+year = 2024
+if business_classification in ["sole proprietorship", "partnership", "llc", "s-corporation"]:
+    try:
+        for (lower, upper), fed_rate in tax_brackets.items():
+            if lower <= tax_inc <= upper:
+                fed_tax = calculate_federal_tax(tax_inc, fed_rate)
+                print(f"Your federal tax rate for the {year} tax season is {fed_rate * 100}%. \nYour taxable income was ${tax_inc:.2f} bringing your federal tax total to ${fed_tax:.2f}.")
+                break
+    except ValueError:
+        print("Invalid input. Please enter a valid numeric value for taxable net income.")
+elif business_classification == "c-corporation":
+    try:
+        fed_rate = 0.21
+        fed_tax = calculate_federal_tax(tax_inc, fed_rate)
+        print(f"The federal corporate tax rate for the {year} tax season is {fed_rate * 100}%. \nYour taxable income was ${tax_inc:.2f} bringing your federal tax total to ${fed_tax:.2f}.")
+    except ValueError:
+        print("Invalid input. Please enter a valid numeric value for taxable net income.")
+else:
+    print("Invalid input. Please select from the provided options.")
+
+
+
+state_abr = input("\nPlease enter your state abbreviation (ex. WA): ").upper()
+
+
+no_tax_states = {"SD", "WY"}
+mandated_tax_states = {
+    "AL": 0.065, "AZ": 0.049, "CA": 0.0884, "CO":0.044, "FL": 0.055, "ID":0.058,
+    "IN":0.049, "KY": 0.05, "MD": 0.0825, "MA": 0.08, "MI": 0.06, "MN": 0.098,
+    "MO": 0.04, "MT": 0.0675, "NH": 0.075, "NC": 0.025, "OK":0.04, "PA": 0.0849,
+    "RI": 0.07, "SC": 0.05, "UT":0.0465, "VA": 0.06, "WV": 0.065, "WI": 0.079,
+    "DC": 0.0825
+}
+
+tax_bracket_states = {
+    "AK", "AR", "HI", "IA", "KS", "LA", "ME", "MS", "NE", "NJ", "NM", "NY",
+    "ND", "VT"
+}
+
+gross_reciept_states = {"NV", "OH", "TX", "WA"}
+
+combo_mandated_states = {"CT": 0.075, "DE": 0.087, "GA": 0.0575, "IL":0.095,
+                         "TN": 0.065
+                         }
+
+combo_bracket_states = {"OR"}
+
+#NO TAX STATES #################################################################
+if state_abr in no_tax_states:
+    state_taxes = 0
+    print("\nYour state has no mandated income taxes")
+#MANDATED TAX STATES ###########################################################
+elif state_abr in mandated_tax_states:
+    state_rate = mandated_tax_states.get(state_abr)
+    state_tax = state_rate * tax_inc
+    print(f"\nYour state has a {state_rate * 100:.2f}% tax rate.")
+    print(f"Your taxable income was ${tax_inc:.2f}, bringing your state tax total to ${state_tax:.2f}.")
+#TAX BRACKET STATES ############################################################
+elif state_abr in tax_bracket_states:
+    def calculate_state_tax(tax_inc, state_rate):
+        state_tax = tax_inc * state_rate
+        return state_tax
+    if state_abr == "AK":
+        tax_brackets = {
+            (0, 24999.99): 0.0,
+            (25000, 48999.99): 0.02,
+            (49000, 73999.99): 0.03,
+            (74000, 98999.99): 0.04,
+            (99000, 123999.99): 0.05,
+            (124000, 147999.99): 0.06,
+            (148000, 172999.99): 0.07,
+            (173000, 197999.99): 0.08,
+            (198000, 221999.99): 0.09,
+            (222000, float('inf')): 0.094,
+              }
+    elif state_abr == "AR":
+        tax_brackets = {
+            (0, 2999.99): 0.01,
+            (3000, 5999.99): 0.02,
+            (6000, 10999.99): 0.03,
+            (11000, float('inf')): 0.048,
+              }
+    elif state_abr == "HI":
+        tax_brackets = {
+            (0, 24999.99): 0.044,
+            (25000, 99999.99): 0.054,
+            (100000, float('inf')): 0.064,
+              }
+    elif state_abr == "IA":
+        tax_brackets = {
+            (0, 99999.99): 0.055,
+            (100000, float('inf')): 0.071,
+              }
+    elif state_abr == "KS":
+        tax_brackets = {
+            (0, 49999.99): 0.035,
+            (50000, float('inf')): 0.065,
+              }
+    elif state_abr == "LA":
+        tax_brackets = {
+            (0, 49999.99): 0.035,
+            (50000, 149999.99): 0.055,
+            (150000, float('inf')): 0.075,
+              }
+    elif state_abr == "ME":
+        tax_brackets = {
+            (0, 349999.99): 0.035,
+            (350000, 1049999.99): 0.0793,
+            (1050000, 3499999.99): 0.0833,
+            (3500000, float('inf')): 0.0893,
+              }
+    elif state_abr == "MS":
+        tax_brackets = {
+            (5000, 9999.99): 0.04,
+            (10000, float('inf')): 0.05,
+              }
+    elif state_abr == "NE":
+        tax_brackets = {
+            (0, 99999.99): 0.0558,
+            (100000, float('inf')): 0.0584,
+              }
+    elif state_abr == "NJ":
+        tax_brackets = {
+            (0, 49999.99): 0.065,
+            (50000, 99999.99): 0.075,
+            (100000, float('inf')): 0.09,
+              }
+    elif state_abr == "NM":
+        tax_brackets = {
+            (0, 499999.99): 0.048,
+            (500000, float('inf')): 0.059,
+              }
+    elif state_abr == "NY":
+        tax_brackets = {
+            (0, 4999999.99): 0.065,
+            (5000000, float('inf')): 0.0725,
+              }
+    elif state_abr == "ND":
+        tax_brackets = {
+            (0, 24999.99): 0.0141,
+            (25000, 49999.99): 0.0355,
+            (50000, float('inf')): 0.0431,
+              }
+    elif state_abr == "VT":
+        tax_brackets = {
+            (0, 9999.99): 0.06,
+            (10000, 24999.99): 0.07,
+            (25000, float('inf')): 0.085,
+              }
+    else:
+            print("Invalid input")
+    try:
+        for (lower,upper), state_rate in tax_brackets.items():
+            if lower <= tax_inc <= upper:
+                state_tax = calculate_state_tax(tax_inc, state_rate)
+                print(f"\nYour state has a {state_rate * 100:.2f}%. \nYour taxable income was ${tax_inc:.2f}, bringing your state tax total to ${state_tax:.2f}.")
+                break
+    except ValueError:
+        print(f"\nInvalid input.")
+##Gross Receipt States #########################################################
+elif state_abr in gross_reciept_states:
+    if state_abr =="NV":
+        print("\nPlease indicate if your company is banking/finance, utilities, manufacturing, or other.")
+        industry = input("Using the options above, please indicate what industry your business is: ").lower()
+        gm_rates = {
+            "banking/finance" :0.02, "utilities":0.00281,
+            "manufacturing": 0.00251, "other": 0
+        }
+    elif state_abr == "OH":
+        print("\nPlease indicate if your company is resort/tourism, casino, or other.")
+        industry = input("Using the options above, please indicate what industry your business is: ").lower()
+        gm_rates = {
+            "resort/tourism" :0.0179, "casino":0.33,
+            "other": 0
+        }
+    elif state_abr == "TX":
+        print("\nPlease indicate if your company is retail, wholesale, or other.")
+        industry = input("Using the options above, please indicate what industry your business is: ").lower()
+        gm_rates = {
+            "retail" :0.00375, "wholesale":0.00375,
+            "other": 0
+        }
+    elif state_abr == "WA":
+        print("\nPlease indicate if your company is retail, wholesale, manufacturing, service, or other.")
+        industry = input("Using the options above, please indicate what industry your business is: ").lower()
+        gm_rates = {
+            "retail" :0.0047, "wholesale":0.0048,
+            "manufacturing": 0.0048, "service": 0.015,
+            "other": 0
+        }
+    state_tax = tax_inc * state_rate
+    print(f"\nYour state tax rate is {state_rate * 100:.2f}%. \nYour taxable income was ${tax_inc:.2f} bringing your state tax total to ${state_tax:.2f}.")
+##Combo Mandated States ########################################################
+elif state_abr in combo_mandated_states:
+    cm_rate = combo_mandated_states.get(state_abr)
+    cm_tax = cm_rate * tax_inc
+    if state_abr =="CT":
+        surtax = input("Does your company file as part of a unitary group?(Yes or No): ").lower()
+        if surtax == "yes" or tax_inc >= 100000000.00:
+            gm_rates = 0.1
+    elif state_abr == "DE":
+        print("\nPlease indicate if your company is insurance, banking, real estate development, health care, tourism, manufacturing, retail/wholesale, or other.")
+        industry = input("Using the options above, please indicate what industry your business is: ").lower()
+        gm_rates = {
+            "insurance" :0.002, "real estate development":0.0,
+            "health care": 0.003983, "tourism": 0.08,
+            "manufacturing":0.00126, "retail/wholesale":0.003983,
+            "other": 0, "banking": {
+                (0, 19999999.99): 0.087,
+                (20000000, 24999999.99): 0.067,
+                (25000000, 29999999.99): 0.047,
+                (30000000, 64999999.99): 0.027,
+                (65000000, float('inf')): 0.017}
+        }
+        tax_deductions = {
+            "insurance": 0, "real estate development": 100000,
+            "health care": 100000, "tourism": 0, "manufacturing":1250000,
+            "retail/wholesale": 100000, "banking":0
+        }
+        deduction_amount = tax_deductions.get(industry,0)
+        tax_inc -= deduction_amount
+    elif state_abr == "GA":
+        print("\nPlease indicate if your company is tourism, insurance, motor fuel, tobacco, or other.")
+        industry = input("Using the options above, please indicate what industry your business is: ").lower()
+        gm_rates = {
+            "tourism" :0.03, "insurance":0.025,
+            "motor fuel":0.036, "tobacco":0.07,
+            "other": 0
+        }
+    elif state_abr == "IL":
+        print("\nPlease indicate if your company sells services, goods, or other.")
+        industry = input("Using the options above, please indicate what industry your business is: ").lower()
+        gm_rates = {
+            "services" :0.0195, "goods":0.0085,
+            "other": 0
+        }
+    elif state_abr == "TN":
+        print("\nPlease indicate if your company is bottling, utilities, vending, mixing bar, or other.")
+        industry = input("Using the options above, please indicate what industry your business is: ").lower()
+        gm_rates = {
+            "bottling" :0.019, "utilities":0.03,
+            "vending": 0.015, "mixing bar": 0.015,
+            "other": 0
+        }
+    gm_rate = gm_rates.get(industry)
+    gm_tax = tax_inc * gm_rate
+    state_tax = cm_tax + gm_tax
+
+
+    print(f"\nYour state has a {state_rate * 100:.2f}% tax rate.")
+    print(f"Your taxable income was ${tax_inc:.2f}, bringing your state tax total to ${state_tax:.2f}.")
+
+
+##Combo Bracketed States #######################################################
+elif state_abr in combo_bracket_states:
+    def calculate_state_tax(tax_inc, state_rate):
+        state_tax = tax_inc * state_rate
+        return state_tax
+    if state_abr == "OR":
+        tax_brackets = {
+            (0, 999999.99): 0.066,
+            (100000, float('inf')): 0.076,
+              }
+        gm_rate = 0.057
+        deduction_amount = 1000000
+        tax_inc -= deduction_amount
+
+        state_tax = 0
+        for (lower, upper), state_rate in tax_brackets.items():
+            if lower <= tax_inc <= upper:
+                state_tax = calculate_state_tax(tax_inc, state_rate)
+                break
+
+        gm_tax = gm_rate * tax_inc
+
+        print(f"\nYour state has a {state_rate * 100:.2f}% tax rate.")
+        print(f"And a gross reciept tax rate of {gm_rate:.2f}%.")
+        print(f"\nYour taxable income was ${tax_inc:.2f}, bringing your state tax total to ${state_tax:.2f}.")
+##Capital Gains Taxes ##########################################################
+no_CG_states = {"AK", "FL", "NV", "NH", "SD", "TN", "TX", "WY"}
+CG_states = {"AL":0.05, "AR": 0.044, "AZ":0.025, "CA": 0.133, "CO": 0.044,
+             "CT":0.0699, "DC":0.1075, "DE": 0.066, "GA": 0.0549, "HI":0.0725,
+             "IA":0.057, "ID": 0.058, "IL": 0.0495, "IN": 0.0305, "KS":0.057,
+             "KY": 0.04, "LA": 0.0425, "MA": 0.09, "MD": 0.0575, "ME": 0.0715,
+             "MI": 0.0425, "MN": 0.0985, "MO": 0.048, "MS": 0.047, "MT": 0.059,
+             "NC":0.045, "ND": 0.025, "NE":0.0584, "NJ":0.1075, "NM":0.059,
+             "NY":0.1090, "PA": 0.0307, "OH": 0.035, "OK": 0.0475, "OR":0.099,
+             "RI":0.0599, "SC":0.064, "UT":0.0465, "VA":0.0575, "VT": 0.0875,
+             "WA": 0.07, "WI": 0.0765, "WV": 0.0512
+
+}
+
+if state_abr in no_CG_states:
+    state_taxes = 0
+    print("\nYour state has no mandated capital gains taxes")
+elif state_abr in CG_states:
+    tax_inc = float(input("\nPlease enter your company's value of capital stock: $"))
+    CG_rate = CG_states.get(state_abr)
+    CG_state_tax = CG_rate * tax_inc
+    print(f"\nYour state has a {CG_rate * 100:.2f}% capital gains tax rate.")
+    print(f"Your taxable capital stock was ${tax_inc:.2f}, bringing your state capital gains tax total to ${CG_state_tax:.2f}.")
+else:
+    print("\nThe entered state abbreviation is invalid.")
+
+
+
+
+
+#FUTA
+employees = int(input("\nPlease enter the number of employees working for your company: "))
+futa_rate = 0.06
+wages = 7000
+
+futa_taxes = employees * futa_rate * wages
+print(f"Your federal unemployment taxes for this year amount to: ${futa_taxes:.2f}")
+
+#SS & MC taxes
+ss_rate = 0.062
+mc_rate = 0.0145
+avg_salary = float(input("\nPlease enter the average salary of your employees: "))
+
+ss_taxes = employees * ss_rate * avg_salary
+mc_taxes = employees * mc_rate * avg_salary
+
+employment_taxes = ss_taxes + mc_taxes
+
+print(f"Social security contributions amount to ${ss_taxes:.2f}, and medicare amounts to ${mc_taxes:.2f}.")
+print(f"Employment taxes for your company: ${employment_taxes:.2f}")
+
+#SUTA
+
+suta_min = {"AL": 0.002, "AK": 0.01, "AZ": 0.0008, "AR": 0.00225, "CA": 0.015,
+            "CO": 0.0081, "CT":0.011, "DE":0.003, "FL":0.001, "GA":0.0006,
+            "HI":0.017, "ID":0.00352, "IL":0.0085, "IN":0.005, "IA":0,
+            "KS":0.001, "KY": 0.003, "LA":0.0009, "ME":0.0028, "MD":0.003,
+            "MA": 0.0056, "MI":0.0006, "MN":0.001, "MS":0, "MO":0, "MT":0,
+            "NE":0, "NV":0.0025, "NH":0.001, "NJ":0.012, "NM":0.0033,
+            "NY":0.02025,"NC":0.0006, "ND":0.0008, "OH":0.004, "OK":0.003,
+            "OR":0.009, "PA":0.01419, "RI":0.011, "SC":0.0006, "SD":0,
+            "TN":0.0001,"TX":0.0025, "UT":0.003, "VT":0.004, "VA":0.001,
+            "WA":0.0027,"DC":0.01, "WV":0.015, "WI":0, "WY":0.00480
+            }
+
+suta_max = {"AL": 0.068, "AK": 0.054, "AZ": 0.2093, "AR": 0.1013, "CA": 0.062,
+            "CO": 0.1234, "CT":0.078, "DE":0.065, "FL":0.054, "GA":0.081,
+            "HI":0.062, "ID":0.054, "IL":0.0865, "IN":0.112, "IA":0.07,
+            "KS":0.06, "KY": 0.09, "LA":0.062, "ME":0.0603, "MD":0.075,
+            "MA": 0.0862, "MI":0.103, "MN":0.09, "MS":0.054, "MO":0.054,
+            "MT":0.0612, "NE":0.054, "NV":0.054, "NH":0.075, "NJ":0.07,
+            "NM":0.054, "NY":0.0983, "NC":0.0576, "ND":0.0968, "OH":0.0101,
+            "OK":0.092, "OR":0.054,"PA":0.1037, "RI":0.097, "SC":0.0546,
+            "SD":0.088, "TN":0.1,"TX":0.0625, "UT":0.073, "VT":0.054,
+            "VA":0.062, "WA":0.0602,"DC":0.0740, "WV":0.085, "WI":0.12,
+            "WY":0.0978
+            }
+
+wage_base = {"AL": 8000, "AK": 49700, "AZ": 8000, "AR": 7000, "CA": 7000,
+            "CO": 23800, "CT":25000, "DE":10500, "FL":7000, "GA":9500,
+            "HI":59100, "ID":53500, "IL":13950, "IN":9500, "IA":38200,
+            "KS":14000, "KY": 11400, "LA":7700, "ME":12000, "MD":8500,
+            "MA":15000, "MI":9500, "MN":42000, "MS":14000, "MO":10000,
+            "MT":43000, "NE":9000, "NV":40600, "NH":14000, "NJ":42300,
+            "NM":31700, "NY":12500, "NC":31400, "ND":43800, "OH":9000,
+            "OK":27000, "OR":52800, "PA":10000, "RI":29200, "SC":14000,
+            "SD":15000, "TN":7000,"TX":9000, "UT":47000, "VT":14300, "VA":8000,
+            "WA":68500, "DC":9000, "WV":9000, "WI":14000, "WY":30900
+            }
+
+def calculate_suta_taxes(state_abr):
+    suta_min_rate = suta_min.get(state_abr)
+    suta_max_rate = suta_max.get(state_abr)
+
+    wage_base_state = wage_base.get(state_abr)
+
+    suta_taxes_min = suta_min_rate * wage_base_state
+    suta_taxes_max = suta_max_rate * wage_base_state
+
+    return suta_taxes_min, suta_taxes_max
+
+min_tax, max_tax = calculate_suta_taxes(state_abr)
+print(f"\nMinimum SUTA Taxes: ${min_tax:.2f}")
+print(f"Maximum SUTA Taxes: ${max_tax:.2f}")
+
+avg_suta = (min_tax + max_tax)/2
+
+min_total_emp = futa_taxes + employment_taxes + min_tax
+max_total_emp = futa_taxes + employment_taxes + max_tax
+
+print(f"\nThe minimum possible employment taxes for your company is: ${min_total_emp:.2f}")
+print(f"The maximum possible employment taxes for your company is: ${max_total_emp:.2f}")
+print()
+
+for_sure_total = fed_tax + state_taxes + CG_state_tax + futa_taxes + ss_taxes + mc_taxes + avg_suta
+
+print("\n--Final Tax Statement--")
+print(f"\nFederal Taxes = ${fed_tax:.2f}")
+print(f"\nState Taxes (including Gross Receipt taxes)= ${state_tax:.2f}")
+print(f"Capital Gains Taxes = ${CG_state_tax:.2f}")
+print(f"\nFederal Unemployment Taxes: ${futa_taxes:.2f}")
+print(f"Social Security Contribution = ${ss_taxes:.2f}")
+print(f"Medicare Contribution = ${mc_taxes:.2f}")
+print(f"State Unemployment Taxes (min)= ${min_tax:.2f}")
+print(f"State Unemployment Taxes (max) = ${max_tax:.2f}")
+print(f"\nTotal Taxation = ${for_sure_total:.2f}")
